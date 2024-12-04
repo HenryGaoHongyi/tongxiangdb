@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Confirm Delete Client</title>
+</head>
+<body>
+<h1>Confirm Delete Client</h1>
+<p>Deleting this client will also delete all associated businesses, charges, and payments.</p>
+<form th:action="@{'/clients/delete/' + ${client.id}}" method="post">
+  <input type="submit" value="Confirm Delete" />
+  <a href="/clients">Cancel</a>
+</form>
+</body>
+</html>

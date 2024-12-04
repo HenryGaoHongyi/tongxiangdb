@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Assets</title>
+</head>
+<body>
+<h1>Assets</h1>
+<a href="/assets/add">Add New Asset</a>
+<table border="1">
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Value</th>
+    <th>Description</th>
+    <th>Client</th>
+  </tr>
+  <tr th:each="asset : ${assets}">
+    <td th:text="${asset.id}"></td>
+    <td th:text="${asset.name}"></td>
+    <td th:text="${asset.value}"></td>
+    <td th:text="${asset.description}"></td>
+    <td th:text="${asset.client.name}"></td>
+    <td>
+      <a th:href="@{'/assets/delete/' + ${asset.id}}">Delete</a>
+    </td>
+  </tr>
+</table>
+</body>
+<a href="/">Back to Index</a>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Confirm Delete Asset</title>
+</head>
+<body>
+<h1>Confirm Delete Asset</h1>
+<p>Deleting this asset will also delete all associated businesses.</p>
+<form th:action="@{'/assets/delete/' + ${asset.id}}" method="post">
+  <input type="submit" value="Confirm Delete" />
+  <a href="/assets">Cancel</a>
+</form>
+</body>
+</html>

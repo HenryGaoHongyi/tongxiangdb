@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Businesses</title>
+</head>
+<body>
+<h1>Businesses</h1>
+<a href="/businesses/add">Add New Business</a>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Principal</th>
+        <th>Term Length</th>
+        <th>Interest Rate</th>
+        <th>Payment Day</th>
+        <th>Next Payment Date</th>
+        <th>Is Cleared</th>
+        <th>Client</th>
+        <th>Asset</th>
+    </tr>
+    <tr th:each="business : ${businesses}">
+        <td th:text="${business.id}"></td>
+        <td th:text="${business.principal}"></td>
+        <td th:text="${business.termLength}"></td>
+        <td th:text="${business.interestRate}"></td>
+        <td th:text="${business.paymentDay}"></td>
+        <td th:text="${business.nextPaymentDate}"></td>
+        <td th:text="${business.isCleared} ? 'Yes' : 'No'"></td>
+        <td th:text="${business.client.name}"></td>
+        <td th:text="${business.asset != null ? business.asset.name : 'No Asset'}"></td>
+        <td>
+            <a th:href="@{'/businesses/delete/' + ${business.id}}"
+               onclick="return confirm('Are you sure you want to delete this business and all related charges and payments?');">
+                Delete
+            </a>
+        </td>
+    </tr>
+</table>
+</body>
+<a href="/">Back to Index</a>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>All Payments</title>
+</head>
+<body>
+<h1>All Payments</h1>
+<table border="1">
+    <tr>
+        <th>Payment Date</th>
+        <th>Payment Amount</th>
+        <th>Description</th>
+        <th>Paid for</th>
+    </tr>
+    <tr th:each="payment : ${payments}">
+        <td th:text="${#temporals.format(payment.paymentDatetime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <td th:text="${payment.paymentAmount}"></td>
+        <td th:text="${payment.description}"></td>
+        <td>
+            <ul>
+                <li>
+                    <span th:if="${payment.charge != null}" th:text="'Charge ID: ' + ${payment.charge.id}"></span>
+                    <span th:if="${payment.charge == null}" class="deleted-charge">Deleted Charge</span>
+                </li>
+            </ul>
+        </td>
+    </tr>
+</table>
+<a href="/">Back to Index</a>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Client Charges</title>
+</head>
+<body>
+<h1 th:text="'Charges for ' + ${client.name}"></h1>
+<table border="1">
+  <tr>
+    <th>Due Date</th>
+    <th>Payment Amount</th>
+    <th>Remaining Balance</th>
+    <th>Status</th>
+  </tr>
+  <tr th:each="charge : ${charges}">
+    <td th:text="${charge.dueDate}"></td>
+    <td th:text="${charge.paymentAmount}"></td>
+    <td th:text="${charge.remainingBalance}"></td>
+    <td th:text="${charge.status}"></td>
+  </tr>
+</table>
+<a th:href="@{'/payments/add?clientId=' + ${client.id}}">Add Payment</a>
+</body>
+
+<a href="/">Back to Index</a>
+
+</html>

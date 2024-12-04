@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Business</title>
+    <script>
+        // Function to calculate the monthly payment
+        function calculateMonthlyPayment() {
+            const principalInput = document.getElementById("principal");
+            const principal = parseFloat(principalInput.value);
+            const interestRate = parseFloat(document.getElementById("interestRate").value);
+            const termLength = parseInt(document.getElementById("termLength").value);
+
+            // Get the asset value
+            const assetValueElement = document.getElementById("assetValue");
+            const assetValue = parseFloat(assetValueElement.innerText) || 0;
+
+            // Enforce principal <= asset value
+            if (principal > assetValue) {
+                principalInput.setCustomValidity("Principal cannot exceed the asset's value ($" + assetValue.toFixed(2) + ").");
+                principalInput.reportValidity();
+                document.getElementById("monthlyPayment").innerText = "N/A";
+                return;
+            } else {
+                principalInput.setCustomValidity("");
+            }
+
+            if (!isNaN(principal) && !isNaN(interestRate) && !isNaN(termLength) && termLength > 0) {
+                const monthlyPayment = (principal * (interestRate / 100) * (termLength / 12) + principal) / termLength;
+                document.getElementById("monthlyPayment").innerText = monthlyPayment.toFixed(2);
+            } else {
+                document.getElementById("monthlyPayment").innerText = "N/A";
+            }
+        }
+
+        // Function to set default values on page load
+        window.onload = function() {
+            const today = new Date();
+            document.getElementById("paymentDay").value = today.getDate();
+            document.getElementById("termLength").value = 12;
+            document.getElementById("interestRate").value = 3;
+            document.getElementById("overdueInterestRate").value = 10;
+            calculateMonthlyPayment(); // Calculate initial monthly payment
+        };
+
+        // Function to fetch available assets based on selected client
+        function fetchAvailableAssets(clientId) {
+            const assetSelect = document.getElementById("asset");
+            const assetMessage = document.getElementById("asset-message");
+            const assetValueElement = document.getElementById("assetValue");
+            assetSelect.disabled = true; // Disable while loading
+            assetSelect.innerHTML = '<option value="">Loading...</option>'; // Show loading option
+            assetMessage.innerText = ''; // Clear previous messages
+            assetValueElement.innerText = "N/A"; // Reset asset value
+
+            // Make AJAX request to fetch assets
+            fetch(`/businesses/available-assets?clientId=${clientId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received data:', data); // Inspect the data
+                    assetSelect.innerHTML = ''; // Clear existing options
+                    console.log('After clearing options:', assetSelect.innerHTML);
+
+                    if (Array.isArray(data) && data.length > 0) {
+                        // Add a default option
+                        const defaultOption = document.createElement("option");
+                        defaultOption.value = "";
+                        defaultOption.text = "-- Select Asset --";
+                        assetSelect.appendChild(defaultOption);
+                        console.log('Processing assets:', data);
+
+                        // Loop through all assets and create option elements
+                        data.forEach(asset => {
+                            console.log(`Processing asset: ${asset.name}, ID: ${asset.id}, Value: ${asset.value}`);
+                            const option = document.createElement("option");
+                            option.value = asset.id;
+                            option.text = `${asset.name} ($${asset.value.toFixed(2)})`;
+                            // Store asset value in a data attribute for easy access
+                            option.setAttribute('data-value', asset.value);
+                            assetSelect.appendChild(option);
+                        });
+                        assetSelect.disabled = false; // Enable after loading
+                    } else {
+                        const option = document.createElement("option");
+                        option.value = "";
+                        option.text = "No available assets";
+                        assetSelect.appendChild(option);
+                        assetMessage.innerText = 'No available assets for the selected client.';
+                        assetSelect.disabled = true; // Keep disabled if no assets
+                    }
+
+                    // Reset monthly payment
+                    document.getElementById("monthlyPayment").innerText = "N/A";
+                })
+                .catch(error => {
+                    console.error('Error fetching assets:', error);
+                    assetSelect.innerHTML = '<option value="">Error loading assets</option>';
+                    assetSelect.disabled = true; // Disable on error
+                    assetMessage.innerText = 'Failed to load assets. Please try again.';
+                    // Reset monthly payment
+                    document.getElementById("monthlyPayment").innerText = "N/A";
+                });
+        }
+
+        // Event listener for client selection change
+        function onClientChange() {
+            const clientSelect = document.getElementById("client");
+            const selectedClientId = clientSelect.value;
+
+            if (selectedClientId) {
+                fetchAvailableAssets(selectedClientId);
+            } else {
+                // If no client is selected, reset the asset dropdown
+                const assetSelect = document.getElementById("asset");
+                const assetMessage = document.getElementById("asset-message");
+                const assetValueElement = document.getElementById("assetValue");
+                assetSelect.innerHTML = '<option value="">Select a client first</option>';
+                assetSelect.disabled = true;
+                assetMessage.innerText = '';
+                assetValueElement.innerText = "N/A";
+                // Reset monthly payment
+                document.getElementById("monthlyPayment").innerText = "N/A";
+            }
+        }
+
+        // Function to handle asset selection change
+        function onAssetChange() {
+            const assetSelect = document.getElementById("asset");
+            const selectedOption = assetSelect.options[assetSelect.selectedIndex];
+            const assetValueElement = document.getElementById("assetValue");
+            const principalInput = document.getElementById("principal");
+
+            if (selectedOption && selectedOption.value) {
+                const assetValue = parseFloat(selectedOption.getAttribute('data-value')) || 0;
+                assetValueElement.innerText = assetValue.toFixed(2);
+                // Set the max attribute of principal input
+                principalInput.max = assetValue.toFixed(2);
+                // Recalculate monthly payment in case principal was previously set
+                calculateMonthlyPayment();
+            } else {
+                assetValueElement.innerText = "N/A";
+                principalInput.max = "";
+                // Reset monthly payment
+                document.getElementById("monthlyPayment").innerText = "N/A";
+            }
+        }
+
+        // Attach the onClientChange and onAssetChange functions to the respective dropdowns
+        document.addEventListener("DOMContentLoaded", function() {
+            const clientSelect = document.getElementById("client");
+            clientSelect.addEventListener("change", onClientChange);
+
+            const assetSelect = document.getElementById("asset");
+            assetSelect.addEventListener("change", onAssetChange);
+
+            // Optionally, trigger the change event on page load to load assets for the first client
+            if (clientSelect.value) {
+                fetchAvailableAssets(clientSelect.value);
+            } else {
+                const assetSelect = document.getElementById("asset");
+                const assetMessage = document.getElementById("asset-message");
+                const assetValueElement = document.getElementById("assetValue");
+                assetSelect.innerHTML = '<option value="">Select a client first</option>';
+                assetSelect.disabled = true;
+                assetMessage.innerText = '';
+                assetValueElement.innerText = "N/A";
+            }
+        });
+    </script>
+
+
+
+    <style>
+        /* Optional: Add some basic styling for better presentation */
+        table {
+            width: 60%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Add New Business</h1>
+<form th:action="@{/businesses/add}" th:object="${business}" method="post">
+    <p>
+        <label for="client">Client:</label>
+        <select th:field="*{client.id}" id="client" aria-label="Select Client" required>
+            <option value="">-- Select Client --</option>
+            <option th:each="client : ${clients}" th:value="${client.id}" th:text="${client.name}"></option>
+        </select>
+    </p>
+    <p>
+        <label for="asset">Asset:</label>
+        <select th:field="*{asset.id}" id="asset" aria-label="Select Asset" disabled required>
+            <option value="">Select a client first</option>
+        </select>
+        <span id="asset-message" style="color: red;"></span>
+    </p>
+    <p>
+        <strong>Asset Value:</strong> $<span id="assetValue">N/A</span>
+    </p>
+    <p>
+        <label for="principal">Principal:</label>
+        <input type="number" step="0.01" th:field="*{principal}" id="principal" oninput="calculateMonthlyPayment()"
+               min="0" required/>
+    </p>
+    <p>
+        <label for="termLength">Term Length (months):</label>
+        <input type="number" th:field="*{termLength}" id="termLength" oninput="calculateMonthlyPayment()" min="1"
+               required/>
+    </p>
+    <p>
+        <label for="interestRate">Interest Rate (%):</label>
+        <input type="number" step="0.01" th:field="*{interestRate}" id="interestRate"
+               oninput="calculateMonthlyPayment()" min="0" required/>
+    </p>
+    <p>
+        <label for="overdueInterestRate">Overdue Interest Rate (%):</label>
+        <input type="number" step="0.01" th:field="*{overdueInterestRate}" id="overdueInterestRate" min="0" required/>
+    </p>
+    <p>
+        <strong>Monthly Payment:</strong> $<span id="monthlyPayment" th:text="*{monthlyPayment}">N/A</span>
+    </p>
+    <p>
+        <label for="paymentDay">Payment Day:</label>
+        <input type="number" th:field="*{paymentDay}" id="paymentDay" min="1" max="31" required/>
+    </p>
+    <!-- Display server-side error messages -->
+    <div th:if="${errorMessage}" class="error-message">
+        <p th:text="${errorMessage}"></p>
+    </div>
+    <p><input type="submit" value="Add Business"/></p>
+</form>
+<a href="/businesses">Back to Businesses</a>
+<br/>
+<a href="/">Back to Index</a>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Asset</title>
+</head>
+<body>
+<h1>Add New Asset</h1>
+<form action="#" th:action="@{/assets/add}" th:object="${asset}" method="post">
+    <p>Name: <input type="text" th:field="*{name}" /></p>
+    <p>Value: <input type="number" step="0.01" th:field="*{value}" /></p>
+    <p>Description: <input type="text" th:field="*{description}" /></p>
+    <p>Client:
+        <select th:field="*{client.id}">
+            <option th:each="client : ${clients}" th:value="${client.id}" th:text="${client.name}"></option>
+        </select>
+    </p>
+    <p><input type="submit" value="Add Asset" /></p>
+</form>
+<a href="/assets">Back to Assets</a>
+</body>
+<a href="/">Back to Index</a>
+</html>
