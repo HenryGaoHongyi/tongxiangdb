@@ -34,6 +34,10 @@ public class AssetService {
         return assetRepository.save(asset);
     }
 
+    public Asset updateAsset(Asset asset) {
+        return assetRepository.save(asset);
+    }
+
     public void deleteAsset(Long id) {
         Asset asset = assetRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid asset ID: " + id));

@@ -6,6 +6,8 @@
 <body>
 <h1>Clients</h1>
 <a href="/clients/add">Add New Client</a>
+<a href="/clients/overdue">View Overdue Clients</a>
+
 <table border="1">
     <tr>
         <th>ID</th>
@@ -20,6 +22,9 @@
         </td>
         <td th:text="${client.phone}"></td>
         <td th:text="${client.email}"></td>
+        <td>
+            <a th:href="@{'/clients/edit/' + ${client.id}}" class="edit-button">Edit</a>
+        </td>
         <td>
             <a th:href="@{'/clients/delete/' + ${client.id}}">Delete</a>
         </td>

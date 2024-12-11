@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Clients with Overdue Payments</title>
+</head>
+<body>
+<h1>Clients with Overdue Payments</h1>
+
+<div th:if="${#lists.isEmpty(overdueClients)}">
+  <p class="no-data">No clients have overdue payments at this time.</p>
+</div>
+
+<div th:unless="${#lists.isEmpty(overdueClients)}">
+  <table>
+    <thead>
+    <tr>
+      <th>Client Name</th>
+      <th>Phone</th>
+      <th>Email</th>
+      <th>Total Accumulated Balance ($)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="client : ${overdueClients}">
+      <td th:text="${client.name}">Client Name</td>
+      <td th:text="${client.phone}">Phone Number</td>
+      <td th:text="${client.email}">Email Address</td>
+      <td th:text="${#numbers.formatDecimal(client.totalAccumulatedBalance, 1, 2)}"></td>
+
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="back-link">
+  <a href="/clients">Back to Clients</a>
+</div>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.tongxiangdb.controllers;
 
+import com.tongxiangdb.dto.ClientOverdueDTO;
 import com.tongxiangdb.entities.Charge;
 import com.tongxiangdb.entities.Client;
 import com.tongxiangdb.services.ClientService;
@@ -9,6 +10,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ModelAttribute;
+
 
 @Controller
 @RequestMapping("/clients")
@@ -42,6 +47,31 @@ public class ClientController {
         return "redirect:/clients";
     }
 
+    @GetMapping("/edit/{id}")
+    public String showEditClientForm(@PathVariable("id") Long id, Model model) {
+        Client client = clientService.getClientById(id);
+        if (client == null) {
+            // Handle client not found scenario
+            model.addAttribute("errorMessage", "Client not found.");
+            return "error"; // Thymeleaf error page
+        }
+        model.addAttribute("client", client);
+        return "edit-client"; // Thymeleaf template name
+    }
+
+    @PostMapping("/edit/{id}")
+    public String editClient(@PathVariable("id") Long id,
+                             @ModelAttribute("client") Client client,
+                             BindingResult bindingResult,
+                             Model model) {
+        if (bindingResult.hasErrors()) {
+            return "edit-client"; // Return to edit form with validation errors
+        }
+        client.setId(id); // Ensure the ID is set
+        clientService.updateClient(client);
+        return "redirect:/clients"; // Redirect to the clients list
+    }
+
     @GetMapping("/{id}/charges")
     public String getClientCharges(@PathVariable Long id, Model model) {
         List<Charge> charges = chargeRepository.findUnpaidChargesByClient(id);
@@ -62,6 +92,14 @@ public class ClientController {
     public String confirmDeleteClient(@PathVariable Long id) {
         clientService.deleteClient(id);
         return "redirect:/clients";
+    }
+
+    @GetMapping("/overdue")
+    public String viewOverdueClients(Model model) {
+        // Fetch clients with overdue payments
+        java.util.List<ClientOverdueDTO> overdueClients = clientService.getClientsWithOverduePayments();
+        model.addAttribute("overdueClients", overdueClients);
+        return "overdue-clients"; // Name of the Thymeleaf template (overdue-clients.html)
     }
 
 }

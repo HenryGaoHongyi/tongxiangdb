@@ -1,5 +1,6 @@
 package com.tongxiangdb.services;
 
+import com.tongxiangdb.dto.ClientOverdueDTO;
 import com.tongxiangdb.entities.Client;
 import com.tongxiangdb.repositories.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,14 @@ public class ClientService {
 
     public Client createOrUpdateClient(Client client) {
         return clientRepository.save(client);
+    }
+
+    public Client updateClient(Client client) {
+        return clientRepository.save(client);
+    }
+
+    public List<ClientOverdueDTO> getClientsWithOverduePayments() {
+        return clientRepository.findClientsWithOverduePayments();
     }
 
     public void deleteClient(Long id) {

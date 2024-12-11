@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Edit Asset</title>
+</head>
+<body>
+<h1 style="text-align: center;">Edit Asset</h1>
+
+<div class="form-container">
+  <form th:action="@{'/assets/edit/' + ${asset.id}}" th:object="${asset}" method="post">
+    <!-- Display validation errors -->
+    <div th:if="${#fields.hasErrors('*')}" class="error-message">
+      <p>Please correct the errors below.</p>
+    </div>
+
+    <label for="name">Name:</label>
+    <input type="text" th:field="*{name}" id="name" placeholder="Enter asset name" required/>
+
+    <label for="value">Value ($):</label>
+    <input type="number" step="0.01" th:field="*{value}" id="value" placeholder="Enter asset value" min="0" required/>
+
+    <button type="submit" class="submit-button">Save Changes</button>
+  </form>
+
+  <div class="back-link">
+    <a href="/assets">Back to Assets List</a>
+  </div>
+</div>
+</body>
+</html>

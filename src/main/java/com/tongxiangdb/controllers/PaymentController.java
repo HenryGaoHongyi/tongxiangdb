@@ -77,7 +77,6 @@ public class PaymentController {
             model.addAttribute("maxPayableAmount", maxPayableAmount);
             model.addAttribute("clientId", clientId);
 
-            // Identify the next unpaid charge
             Optional<Charge> nextChargeOpt = charges.stream()
                     .min(Comparator.comparing(Charge::getDueDate));
             if (nextChargeOpt.isPresent()) {

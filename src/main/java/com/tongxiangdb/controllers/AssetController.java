@@ -5,6 +5,7 @@ import com.tongxiangdb.services.AssetService;
 import com.tongxiangdb.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 
@@ -41,6 +42,31 @@ public class AssetController {
     public String addAsset(@ModelAttribute("asset") Asset asset) {
         assetService.createOrUpdateAsset(asset);
         return "redirect:/assets";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String showEditAssetForm(@PathVariable("id") Long id, Model model) {
+        Asset asset = assetService.getAssetById(id);
+        if (asset == null) {
+            // Handle asset not found scenario
+            model.addAttribute("errorMessage", "Asset not found.");
+            return "error"; // Thymeleaf error page
+        }
+        model.addAttribute("asset", asset);
+        return "edit-asset"; // Thymeleaf template name
+    }
+
+    @PostMapping("/edit/{id}")
+    public String editAsset(@PathVariable("id") Long id,
+                            @ModelAttribute("asset") Asset asset,
+                            BindingResult bindingResult,
+                            Model model) {
+        if (bindingResult.hasErrors()) {
+            return "edit-asset"; // Return to edit form with validation errors
+        }
+        asset.setId(id); // Ensure the ID is set
+        assetService.updateAsset(asset);
+        return "redirect:/assets"; // Redirect to the assets list
     }
 
     @GetMapping("/delete/{id}")

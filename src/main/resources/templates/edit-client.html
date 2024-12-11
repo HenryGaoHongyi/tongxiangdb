@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Edit Client</title>
+</head>
+<body>
+<h1 style="text-align: center;">Edit Client</h1>
+
+<div class="form-container">
+  <form th:action="@{'/clients/edit/' + ${client.id}}" th:object="${client}" method="post">
+    <div th:if="${#fields.hasErrors('*')}" class="error-message">
+      <p>Please correct the errors below.</p>
+    </div>
+
+    <label for="name">Name:</label>
+    <input type="text" th:field="*{name}" id="name" placeholder="Enter client name" required/>
+
+    <label for="phone">Phone:</label>
+    <input type="tel" th:field="*{phone}" id="phone" placeholder="Enter phone number" required/>
+
+    <label for="email">Email:</label>
+    <input type="email" th:field="*{email}" id="email" placeholder="Enter email address" required/>
+
+    <button type="submit" class="submit-button">Save Changes</button>
+  </form>
+
+  <div class="back-link">
+    <a href="/clients">Back to Clients List</a>
+  </div>
+</div>
+</body>
+</html>
